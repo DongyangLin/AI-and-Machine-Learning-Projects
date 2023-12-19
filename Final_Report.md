@@ -35,3 +35,35 @@ The project addresses several key challenges inherent in data analysis:
 4. **Dimensionality Reduction:** Implement PCA and Linear Autoencoder to extract essential features and reconstruct original data. Showcase the potential of these methods in simplifying data representation across diverse datasets.
 
 The project aims to provide insights into the strengths and limitations of clustering and dimensionality reduction techniques, offering valuable implications for a broad range of data analysis scenarios.
+
+## Method and Algorithms
+
+### KMeans:
+
+KMeans算法通过初始化中心点、中心点移动以及聚类更新将数据划分为不同的类别达到聚类效果。KMeans的损失函数可以定义为每个聚类数据点到聚类中心的欧氏距离之和：
+$$
+\min_{\{\mathbf m\},\{\mathbf r\}}J(\{\mathbf m\},\{\mathbf r\})=\min_{\{\mathbf m\},\{\mathbf r\}}\sum_{n=1}^{N}\sum_{k=1}^{K}r_k^{(n)}||\mathbf m_k-\mathbf x^{(n)}||^2
+$$
+其中，$\mathbf x \in \mathbb{R}^{n \times d}$为样本n个d维样本输入。$\mathbf m \in \mathbb{R}^{k \times d}$为聚类中心，k为聚类数量。$r_k^{(n)}\in \{0,1\}$为样本分类的标识符，采用独热编码，1代表该数据点属于第k个聚类中心。
+
+通过算法迭代使损失函数达到最小值，具体步骤如下：
+
+1. 初始化聚类中心：对于某一数据集，设置k个聚类中心，通过随机数生成等方法初始化聚类中心。
+
+2. 聚类：通过判断每个数据点到聚类中心的距离，挑选离其最近的聚类中心作为那一点所属的类别。
+   $$
+   \hat{k}^{(n)}=\arg \min_k||\mathbf m_k-\mathbf x^{(n)}||^2
+   $$
+   且
+   $$
+   r_k^{(n)}=1\leftrightarrow \hat{k}^{(n)}=k
+   $$
+   
+
+3. 聚类中心移动：聚类步骤完成后，将聚类中心移动到对应聚类数据点的中心。
+   $$
+   \mathbf m_k=\frac{\sum_n r_k^{(n)} \mathbf x^{(n)}}{\sum_n r_k^{(n)}}
+   $$
+
+4. 更新：聚类中心移动后，重复步骤2和步骤3，直到聚类中心不再变更或达到最大迭代次数。
+
