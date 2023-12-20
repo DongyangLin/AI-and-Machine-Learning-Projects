@@ -213,3 +213,57 @@ $$
 (SoftKM)
 
 此外，观察损失函数曲线，可以发现损失函数先增后减，这是由于聚类在迭代过程中发生合并，然后聚类数量稳定，loss开始逐渐下降。
+
+### PCA
+
+本项目使用PCA对彩色图片和黑白图片进行特征提取。其中彩色图片共有3个特征，分别对应像素点的RGB通道，通过PCA提取最主要的颜色特征，即：将数据降为一维。而灰白图片以像素为特征，通过PCA提取主要像素特征压缩像素。
+
+##### 彩色图片处理：
+
+设置主成分数量为1，对来自谷歌CIFAR-10数据集的彩色图片进行特征提取，提取得到最主要的颜色特征并且和原图对比。通过对比发现，虽然重构后的图像仅有单色，但是仍然保留了几乎所有原图的形状特征，证明PCA能够有效对图像进行降维并且重构，同时保留图像的主要特征。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\PCA_Color_K=1.png" alt="PCA_Color_K=1" style="zoom:50%;" />
+
+(pca color k=1)
+
+增加特征数量至2个，降维重构后的图像与原图基本一致。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\PCA_Color_K=2.png" alt="PCA_Color_K=2" style="zoom:50%;" />
+
+(pca color k=2)
+
+##### 黑白图片处理：
+
+不同于彩色图片，对黑白图片的处理提取图片的像素特征进行降维重构。使用640*640的黑白图片，将列像素作为主要特征，设置特征数量为40，通过PCA对图像压缩并重构。对比原图和重构图片可以发现，尽管至保留了6.25%的像素信息，仍然能够重构出和原图主要特征一致的黑白图片。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\PCA_Gray.png" alt="PCA_Gray" style="zoom:50%;" />
+
+(pca gray k=40)
+
+### 线性自动编码器
+
+与PCA相同，分别采用彩色图片和黑白图片对线性自动编码器训练，提取中间隐藏层作为压缩后的数据，并且通过神经网络的后半部分完成数据重构。
+
+黑白图片采用谷歌的Fashion MNIST 数据集，该数据集包含28\*28像素的黑白图片。设置神经网络的隐藏层结构为[20,10,20]（中间10维的隐藏层数据即为压缩完成的数据），学习率$\lambda =0.8$将黑白图片压缩至一维（共28\*28=784个像素点特征）后传入线性自动编码器，经过30次迭代损失函数收敛至0。对比输入图片和重构出的图片，可以发现仅用1.2%的数据就可以重构出与原图一致的图片，线性自动编码器在数据降维任务中表现出优秀的特征提取能力。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\AutoEncoder_gray.png" alt="AutoEncoder_gray" style="zoom:50%;" />
+
+(autoEncoder gray 10维)
+
+彩色图片采用与PCA相同的图片，图片维度为32\*32\*3。同样设置隐藏层结构为[20,10,20]，学习率$\lambda =0.8$，将彩色图片压缩为一维数据（共32\*32\*3=3072个像素点特征）后传入线性自动编码器，经过9次迭代过后重构图片与原图相似，经过30次迭代后损失函数收敛至0，重构图片与原图一致。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\AutoEncoder_color_9.png" alt="AutoEncoder_color_9" style="zoom:50%;" />
+
+(autoEncoder color 9次迭代)
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\AutoEncoder_color_30.png" alt="AutoEncoder_color_30" style="zoom:50%;" />
+
+(autoEncoder color 30次迭代)
+
+同时，将PCA的降维重构结果与线性自动编码器的降维重构结果对比可以发现，线性自动编码器保留了原图几乎所有特征，能够很好的压缩图像并且恢复图像。而PCA提取1至2个颜色特征后仍有部分特征缺失，表现相较线性自动编码器较弱。
+
+#### SoftKMeans对图片进行聚类
+
+为进一步探究SoftKMeans模型的聚类能力，对比PCA数据降维，将与PCA模型用到的黑白图片相同的彩色图片（维度为640\*640\*3）输入SoftKMeans模型进行聚类，设置聚类个数为10个。对比聚类结果和原图，可以发现基本恢复出原图的主要特征。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\SoftKMeans_colorImage.png" alt="SoftKMeans_colorImage" style="zoom:50%;" />
