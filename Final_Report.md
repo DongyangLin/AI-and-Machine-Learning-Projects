@@ -38,7 +38,17 @@ The project aims to provide insights into the strengths and limitations of clust
 
 ## Method and Algorithms
 
-### KMeans:
+### Methods:
+
+本项目通过模型构建、数据集测试，控制变量和模型横向对比的方法，构建出合适的聚类模型和数据降维模型。并且通过多种数据集的测试优化模型的表现。
+
+其中KMeans和SoftKMeans聚类模型通过wheat seed dataset和彩色图片的聚类进行对比。在此基础上引入non-local split-and-merge moves优化模型，并且通过对wheat seed dataset设置更高的聚类数量进一步判断模型表现。
+
+对于数据降维模型，通过谷歌的Fashion MNIST（包含28*28的黑白图片）数据集以及CIFAR-10数据集（包含32\*32的彩色图片）训练线性自动编码器并且对比原图分析模型表现。另外，用PCA模型对这两个数据集进行特征提取，对比PCA的重构图片和线性自动编码器的重构图片，分析两个不同模型的表现。
+
+### Algorithms:
+
+#### KMeans:
 
 KMeans算法通过初始化中心点、中心点移动以及聚类更新将数据划分为不同的类别达到聚类效果。KMeans的损失函数可以定义为每个聚类数据点到聚类中心的欧氏距离之和：
 $$
@@ -66,7 +76,7 @@ $$
 
 4. 更新：聚类中心移动后，重复步骤2和步骤3，直到聚类中心不再变更或达到最大迭代次数。
 
-### SoftKMeans:
+#### SoftKMeans:
 
 为了避免过于绝对的聚类方式，引入Soft KMeans让模型在聚类过程中获取更多数据信息。在每次更新聚类时，调整聚类标识符$r_k^{(n)}$为
 $$
@@ -74,11 +84,11 @@ r_k^{(n)}=\frac{\exp [-\beta ||\mathbf m_k-\mathbf x^{(n)}||^2]}{\sum_j\exp [-\b
 $$
 聚类中心更新过程保持不变。
 
-### PCA:
+#### PCA:
 
 主成分分析算法是通过提取输入数据主成分达到降维目的的算法。此算法可以有效压缩数据集，并且通过压缩后的数据集恢复出与原有数据集相似的数据。
 
-#### 数据压缩：
+##### 数据压缩：
 
 对于任意输入数据$\mathbf x \in \mathbb {R}^{d}$，可通过压缩重构近似表达为
 $$
@@ -108,7 +118,7 @@ PCA满足最大方差（绿色点），和最小误差的性质（红色点）�
 
 <img src="C:\Users\zikun\AppData\Roaming\Typora\typora-user-images\image-20231220120301435.png" alt="image-20231220120301435" style="zoom:40%;" />
 
-#### 数据重构：
+##### 数据重构：
 
 完成PCA的数据降维后，可以根据降维过程将数据重构，恢复出与原来近似的数据$\widetilde {\mathbf x}_n$。重构过程需要最小化重构误差函数
 $$
@@ -125,5 +135,15 @@ b_j = \mathbf{\bar x}^T\mathbf u_j
 $$
 得到$z_j^{(n)}$的过程即为投影的逆过程，$b_j$为中心偏移量的补偿。
 
-### 线性自动编码器：
+#### 线性自动编码器：
 
+线性自动编码器与多层感知机（MLP）类似，将输入数据作为自己的输出数据，通过神经网络对数据特征进行学习和提取，能够将数据压缩到更低维度，且重构出与原数据几乎相同的数据。
+
+<img src="C:\Users\zikun\AppData\Roaming\Typora\typora-user-images\image-20231220132515597.png" alt="image-20231220132515597" style="zoom:50%;" />
+
+线性自动编码器可以分为两部分，前半部分为编码器，可以将数据降至更低维度，后半部分为解码器，可以将降维后的数据进行重构。训练完成后，中间最低维度的隐藏层数据即为所需要的降维后数据。
+
+线性自动编码器与MLP模型的区别在于输出层无需激活函数，即线性输出
+$$
+\mathbf y=\mathbf w_0+\mathbf w^T \mathbf h
+$$
