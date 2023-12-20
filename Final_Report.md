@@ -84,6 +84,8 @@ r_k^{(n)}=\frac{\exp [-\beta ||\mathbf m_k-\mathbf x^{(n)}||^2]}{\sum_j\exp [-\b
 $$
 聚类中心更新过程保持不变。
 
+在此算法中，超参数$\beta$用于调节软分配的程度。较小的$\beta $使得软分配更加平滑，而较大的$\beta $会使得软分配更加集中，趋向于硬分配。
+
 #### KMeans++:
 
 为了尽可能避免聚类中心重合以及陷入局部最优解，引入KMeans++方法对KMeans和SoftKMeans的聚类中心进行初始化。
@@ -96,6 +98,17 @@ K-Means++ 的初始中心选择过程如下：
 4. 重复步骤 2 和步骤 3，选择剩余的中心，直到选择了 k 个初始中心。
 
 这样，K-Means++ 确保了初始中心点的广泛分布，使得算法更有可能找到全局最优解，减少了收敛到局部最优解的风险。
+
+#### Non-local Split-and-Merge Moves
+
+在K均值算法中，初始聚类中心的选择可能会影响最终的聚类结果。非局部分割与合并移动通过在K均值迭代的过程中引入一种动态的聚类中心更新机制，可以更好地克服初始中心选择的问题，提高聚类的准确性。
+
+具体而言，非局部分割与合并移动的作用如下：
+
+1. **分割：** 在K均值迭代的过程中，如果某个簇的数据点分布不均匀或者具有多个子簇，非局部分割与合并移动会尝试将该簇进一步分割成更小的子簇，以更好地捕捉数据的内在结构。
+2. **合并：** 另一方面，如果某个簇的数据点分布过于稀疏或者聚类过程中产生了不必要的细分，非局部分割与合并移动可以尝试将相似的子簇合并，以减少不必要的细节，提高聚类的整体性能。
+
+通过这种动态的分割与合并操作，非局部分割与合并移动有助于K均值算法更好地适应不同数据分布的情况，提高了聚类的效果和稳健性。
 
 #### PCA:
 
@@ -154,7 +167,9 @@ $$
 
 <img src="C:\Users\zikun\AppData\Roaming\Typora\typora-user-images\image-20231220132515597.png" alt="image-20231220132515597" style="zoom:50%;" />
 
-线性自动编码器可以分为两部分，前半部分为编码器，可以将数据降至更低维度，后半部分为解码器，可以将降维后的数据进行重构。训练完成后，中间最低维度的隐藏层数据即为所需要的降维后数据。
+线性自动编
+
+码器可以分为两部分，前半部分为编码器，可以将数据降至更低维度，后半部分为解码器，可以将降维后的数据进行重构。训练完成后，中间最低维度的隐藏层数据即为所需要的降维后数据。
 
 线性自动编码器与MLP模型的区别在于输出层无需激活函数，即线性输出
 $$
@@ -165,5 +180,36 @@ $$
 
 ### KMeans and Soft KMeans
 
-通过含有210个数据点，每个数据点7个特征的wheat seed dataset对KMeans和Soft KMeans进行表现评估。该数据集总共有三个标签，因此设置聚类个数K=3。对比数据集的真实标签和两个模型的聚类结果，KMeans模型和Soft KMeans模型的聚类准确率均为71.67%，二者表现相近。这可能是由于引入KMeans++方法后，两者的聚类性能都得到显著提升，可以避免陷入局部最优解，从而拉近了两者的聚类效果差距。
+通过含有210个数据点，每个数据点7个特征的wheat seed dataset对KMeans和Soft KMeans进行表现评估。该数据集总共有三个标签，因此设置聚类个数K=3。
 
+对比数据集的真实标签和两个模型的聚类结果，KMeans模型准确率为71.03%，Soft KMeans（超参数$\beta =10$）模型的聚类准确率为71.67%，二者表现相近。这可能是由于引入KMeans++方法后，两者的聚类性能都得到显著提升，可以避免陷入局部最优解，从而拉近了两者的聚类效果差距。但是仍然可以看出Soft KMeans表现更好，这是由于Soft KMeans获取了更多的数据信息，避免过于绝对的聚类结果。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\KMeans.png" alt="KMeans" style="zoom:50%;" />
+
+（KMeans)
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\SoftKMeans.png" alt="SoftKMeans" style="zoom:50%;" />
+
+（SoftKMeans)
+
+此外，设置K=10，重新通过KMeans和SoftKMeans（超参数$\beta =10$）模型进行聚类，最终KMeans模型的loss函数下降至201.25，而SoftKMeans模型的损失函数下降至190.67。可见Soft KMeans在聚类数量更多时表现比KMeans更好，这也是由于其获取了更多的数据信息。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\KM_K=10.png" alt="KM_K=10" style="zoom:50%;" />
+
+（KMeans)
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\SftKM_K=10.png" alt="SftKM_K=10" style="zoom:50%;" />
+
+（SoftKMeans)
+
+在K=10的基础上，加入non-local split-and-merge moves，增加KMeans模型的自适应能力，设置分裂合并的阈值，再次通过KMeans模型和Soft KMeans模型对数据进行聚类。挑选两个模型各自表现最好的分裂合并阈值，可以发现聚类结束后两个模型的聚类数量回到3个，并且正确率分别和设置K=3时相同（KMeans为71.03%，SoftKMeans为71.67%）。这说明non-local split-and-merge moves可以有效地增强模型的自适应能力，面对未知聚类数量的模型仍然能够达到良好的表现。
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\NLSM_KM.png" alt="NLSM_KM" style="zoom:50%;" />
+
+(KM)
+
+<img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\NLSM_SftKM.png" alt="NLSM_SftKM" style="zoom:50%;" />
+
+(SoftKM)
+
+此外，观察损失函数曲线，可以发现损失函数先增后减，这是由于聚类在迭代过程中发生合并，然后聚类数量稳定，loss开始逐渐下降。
