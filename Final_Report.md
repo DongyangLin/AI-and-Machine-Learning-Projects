@@ -59,11 +59,71 @@ $$
    r_k^{(n)}=1\leftrightarrow \hat{k}^{(n)}=k
    $$
    
-
 3. 聚类中心移动：聚类步骤完成后，将聚类中心移动到对应聚类数据点的中心。
    $$
    \mathbf m_k=\frac{\sum_n r_k^{(n)} \mathbf x^{(n)}}{\sum_n r_k^{(n)}}
    $$
 
 4. 更新：聚类中心移动后，重复步骤2和步骤3，直到聚类中心不再变更或达到最大迭代次数。
+
+### SoftKMeans:
+
+为了避免过于绝对的聚类方式，引入Soft KMeans让模型在聚类过程中获取更多数据信息。在每次更新聚类时，调整聚类标识符$r_k^{(n)}$为
+$$
+r_k^{(n)}=\frac{\exp [-\beta ||\mathbf m_k-\mathbf x^{(n)}||^2]}{\sum_j\exp [-\beta ||\mathbf m_j-\mathbf x^{(n)}||^2]}
+$$
+聚类中心更新过程保持不变。
+
+### PCA:
+
+主成分分析算法是通过提取输入数据主成分达到降维目的的算法。此算法可以有效压缩数据集，并且通过压缩后的数据集恢复出与原有数据集相似的数据。
+
+#### 数据压缩：
+
+对于任意输入数据$\mathbf x \in \mathbb {R}^{d}$，可通过压缩重构近似表达为
+$$
+\mathbf x \approx  U\mathbf z + \mathbf a
+$$
+其中，$U\in \mathbb {R}^{d \times m}$为投影矩阵，$\mathbf z \in \mathbb {R}^{m}$为压缩后的数据，$\mathbf a \in \mathbb {R}^d$为中心偏移量补偿。
+
+为了寻找投影矩阵$U$，构建协方差矩阵$C\in \mathbb {R}^{d \times d}$
+$$
+C=\frac{1}{N}\sum_{n=1}^{N}(\mathbf x^{(n)}-\mathbf {\bar x})(\mathbf x^{(n)}-\mathbf {\bar x})^T
+$$
+其中$M$个最大的特征值即为所寻找的主成分。由此，可以将协方差矩阵写为
+$$
+C=U\Sigma U^T \approx U_{1:M}\Sigma_{1:M}U_{1:M}^T
+$$
+其中$U$为所需的投影矩阵，由$M$个最大特征值对应的特征向量组成。且矩阵$U$单位正交
+$$
+U^TU=UU^T=1
+$$
+$\Sigma $为协方差矩阵特征值构成的对角阵。
+
+得到投影矩阵$U$后，将原始数据$\mathbf x$投影即可得到压缩后的数据$\mathbf z$。
+$$
+\mathbf z=U^T \mathbf x
+$$
+PCA满足最大方差（绿色点），和最小误差的性质（红色点），即：在$\mathbf u$方向投影得到的$\widetilde {\mathbf x}_n$之间间隔距离最大，且投影后的数据$\widetilde {\mathbf x}_n$和原始数据$\mathbf x_n$距离最小。
+
+<img src="C:\Users\zikun\AppData\Roaming\Typora\typora-user-images\image-20231220120301435.png" alt="image-20231220120301435" style="zoom:40%;" />
+
+#### 数据重构：
+
+完成PCA的数据降维后，可以根据降维过程将数据重构，恢复出与原来近似的数据$\widetilde {\mathbf x}_n$。重构过程需要最小化重构误差函数
+$$
+J(\mathbf u,\mathbf z,\mathbf b)=\sum_n||\mathbf x^{(n)}-\widetilde {\mathbf x}^{(n)}||^2
+$$
+其中
+$$
+\widetilde {\mathbf x}^{(n)}=\sum_{j=1}^{M}z_j^{(n)}\mathbf u_j + \sum_{j=M+1}^D b_j\mathbf u_j
+$$
+符合最小化重构函数的$z_j^{(n)}$和$b_j$为
+$$
+z_j^{(n)}=\mathbf u_j^T\mathbf x^{(n)} \\
+b_j = \mathbf{\bar x}^T\mathbf u_j
+$$
+得到$z_j^{(n)}$的过程即为投影的逆过程，$b_j$为中心偏移量的补偿。
+
+### 线性自动编码器：
 
