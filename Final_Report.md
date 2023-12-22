@@ -265,3 +265,19 @@ $$
 为进一步探究SoftKMeans模型的聚类能力，对比PCA数据降维，将与PCA模型用到的黑白图片相同的彩色图片（维度为640\*640\*3）输入SoftKMeans模型进行聚类，设置聚类个数为10个。对比聚类结果和原图，可以发现基本恢复出原图的主要特征。
 
 <img src="D:\大三上\人工智能与机器学习\finall_project\conference-latex-template_10-17-19\Final_Report\SoftKMeans_colorImage.png" alt="SoftKMeans_colorImage" style="zoom:50%;" />
+
+## Conclusion and Future Problems
+
+### Conclusion:
+
+本次项目探究了聚类和数据降维重构两种任务的机器学习模型，包含KMeans,Soft KMeans,PCA和线性自动编码器。
+
+在聚类效果方面，KMeans的聚类效果相较于Soft KMeans较弱，是由于Soft KMeans能够获取更多数据信息所致。而最重要的是运用了KMeans++初始化聚类中心点，能够极大程度上改善KMeans和Soft KMeans聚类模型的性能。其次，加入non-local split-and-merge moves，能够增强这两个模型的稳定性和自适应能力，对后续处理未知聚类个数的数据起到关键作用。
+
+在数据降维方面，PCA和线性自动编码器都表现出良好的性能。PCA算法更加简单快速，相较于线性自动编码器能够在少占用计算机资源的情况下达到相对良好的特征提取效果。而线性自动编码器依靠其强大的学习能力，可以更好的完成数据降维重构这一任务，重构的图像与原图一致。
+
+### Future Problems:
+
+1. KMeans算法和Soft KMeans算法的局部最优解问题：为了防止这两个聚类模型陷入局部最优解，除了引入KMeans++方法初始化聚类中心点之外，还能够加入随机森林等算法。本项目只研究了KMeans++算法，其他缓解局部最优解问题的算法仍待探究。
+2. KMeans算法和Soft KMeans算法的优化问题：由于本项目利用Python构建这两个聚类模型，导致其运行效率降低。后续可以通过避免循环的方式，改用矩阵表达实现聚类过程和中心点位置更新。
+3. 线性自动编码器算法的优化问题：由于本项目的线性自动编码器通过Python和Numpy实现，因此无法对过大的数据量进行操作，只能处理像素较低的图片，有很强的局限性。后续可以通过改进算法逻辑，或使用C++等其他编程语言实现算法，进行优化。
